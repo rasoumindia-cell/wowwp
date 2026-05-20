@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
+    />
+    <meta name="color-scheme" content="dark light" />
+    <title>WACRM</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #09090b;
+        --card: #18181b;
+        --border: #27272a;
+        --text: #fafafa;
+        --muted: #a1a1aa;
+        --accent: #7c3aed;
+        --accent-hover: #6d28d9;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: max(1rem, env(safe-area-inset-top))
+          max(1rem, env(safe-area-inset-right))
+          max(1rem, env(safe-area-inset-bottom))
+          max(1rem, env(safe-area-inset-left));
+      }
+      .card {
+        width: 100%;
+        max-width: 22rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 1.5rem;
+      }
+      h1 {
+        margin: 0 0 0.25rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+      p {
+        margin: 0 0 1.25rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+      label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+        color: var(--muted);
+      }
+      input {
+        width: 100%;
+        padding: 0.75rem 0.85rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--text);
+        font-size: 1rem;
+        margin-bottom: 1rem;
+      }
+      input:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+      button {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: none;
+        border-radius: 0.5rem;
+        background: var(--accent);
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:active {
+        background: var(--accent-hover);
+      }
+      .error {
+        display: none;
+        margin-top: 0.75rem;
+        font-size: 0.85rem;
+        color: #f87171;
+      }
+      .error.visible {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>WACRM</h1>
+      <p>Connect to your self-hosted WACRM server to use the mobile app.</p>
+      <form id="connect-form">
+        <label for="server">Server URL</label>
+        <input
+          id="server"
+          name="server"
+          type="url"
+          inputmode="url"
+          autocomplete="url"
+          placeholder="https://your-wacrm.example.com"
+          required
+        />
+        <button type="submit">Connect</button>
+        <p id="error" class="error" role="alert"></p>
+      </form>
+    </div>
+    <script>
+      const STORAGE_KEY = "wacrm_server_url";
+      const DEFAULT_SERVER = "";
+
+      function normalizeUrl(raw) {
+        const trimmed = raw.trim();
+        if (!trimmed) return null;
+        const withProtocol = /^https?:\/\//i.test(trimmed)
+          ? trimmed
+          : `https://${trimmed}`;
+        const url = new URL(withProtocol);
+        if (url.protocol !== "http:" && url.protocol !== "https:") {
+          return null;
+        }
+        url.hash = "";
+        url.search = "";
+        return url.origin;
+      }
+
+      function goToServer(origin) {
+        localStorage.setItem(STORAGE_KEY, origin);
+        window.location.replace(origin);
+      }
+
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        goToServer(saved);
+      } else if (DEFAULT_SERVER && DEFAULT_SERVER !== "__WACRM_DEFAULT_SERVER__") {
+        goToServer(DEFAULT_SERVER);
+      }
+
+      const form = document.getElementById("connect-form");
+      const input = document.getElementById("server");
+      const error = document.getElementById("error");
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        error.classList.remove("visible");
+        error.textContent = "";
+
+        const origin = normalizeUrl(input.value);
+        if (!origin) {
+          error.textContent = "Enter a valid http or https URL.";
+          error.classList.add("visible");
+          return;
+        }
+
+        goToServer(origin);
+      });
+    </script>
+  </body>
+</html>
