@@ -17,6 +17,7 @@ interface Profile {
   email: string;
   avatar_url: string | null;
   role: string | null;
+  page_permissions: string[];
 }
 
 interface AuthContextValue {
@@ -50,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, email, avatar_url, role")
+        .select("id, full_name, email, avatar_url, role, page_permissions")
         .eq("user_id", userId)
         .maybeSingle();
 
@@ -79,9 +80,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               user_id: user.id,
               full_name: defaultName,
               email: defaultEmail,
-              role: "user"
+              role: "user",
+              page_permissions: []
             })
-            .select("id, full_name, email, avatar_url, role")
+            .select("id, full_name, email, avatar_url, role, page_permissions")
             .maybeSingle();
             
           if (!insertError && newProfile) {

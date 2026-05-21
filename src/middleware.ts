@@ -2,6 +2,17 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { supabaseCookieOptions } from '@/lib/supabase/cookies'
 
+/** Map of path prefix → required page permission slug. */
+const PAGE_PERMISSIONS: Record<string, string> = {
+  '/dashboard': 'dashboard',
+  '/inbox': 'inbox',
+  '/contacts': 'contacts',
+  '/pipelines': 'pipelines',
+  '/broadcasts': 'broadcasts',
+  '/automations': 'automations',
+  '/settings': 'settings',
+};
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -39,11 +50,37 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protected pages - redirect to login if not authenticated
-  const protectedPaths = ['/dashboard', '/inbox', '/contacts', '/pipelines', '/broadcasts', '/automations', '/settings']
+  const protectedPaths = Object.keys(PAGE_PERMISSIONS)
   if (!user && protectedPaths.some(path => request.nextUrl.pathname.startsWith(path))) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
+  }
+
+  // Page-level permission check - redirect to dashboard if user lacks access
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, page_permissions')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (profile) {
+      for (const [pathPrefix, pageSlug] of Object.entries(PAGE_PERMISSIONS)) {
+        if (request.nextUrl.pathname.startsWith(pathPrefix)) {
+          const hasAccess =
+            profile.role === 'admin' ||
+            (profile.page_permissions ?? []).includes(pageSlug)
+
+          if (!hasAccess) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/dashboard'
+            return NextResponse.redirect(url)
+          }
+          break
+        }
+      }
+    }
   }
 
   // API routes that need auth (not webhooks)

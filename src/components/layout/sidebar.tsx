@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useTotalUnread } from "@/hooks/use-total-unread";
+import { hasPageAccess } from "@/lib/permissions";
 import {
   LayoutDashboard,
   MessageSquare,
@@ -33,16 +34,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/inbox", label: "Inbox", icon: MessageSquare },
-  { href: "/contacts", label: "Contacts", icon: Users },
-  { href: "/pipelines", label: "Pipelines", icon: GitBranch },
-  { href: "/broadcasts", label: "Broadcasts", icon: Radio },
-  { href: "/automations", label: "Automations", icon: Zap },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, page: "dashboard" as const },
+  { href: "/inbox", label: "Inbox", icon: MessageSquare, page: "inbox" as const },
+  { href: "/contacts", label: "Contacts", icon: Users, page: "contacts" as const },
+  { href: "/pipelines", label: "Pipelines", icon: GitBranch, page: "pipelines" as const },
+  { href: "/broadcasts", label: "Broadcasts", icon: Radio, page: "broadcasts" as const },
+  { href: "/automations", label: "Automations", icon: Zap, page: "automations" as const },
 ];
 
 const bottomNavItems = [
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/settings", label: "Settings", icon: Settings, page: "settings" as const },
 ];
 
 interface SidebarProps {
@@ -134,7 +135,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
         {/* Main navigation */}
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <ul className="flex flex-col gap-1">
-            {navItems.map((item) => {
+            {navItems.filter((item) => hasPageAccess(profile, item.page)).map((item) => {
               const isActive =
                 pathname === item.href ||
                 (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -174,7 +175,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
           <div className="my-4 border-t border-sidebar-border" />
 
           <ul className="flex flex-col gap-1">
-            {bottomNavItems.map((item) => {
+            {bottomNavItems.filter((item) => hasPageAccess(profile, item.page)).map((item) => {
               const isActive = pathname.startsWith(item.href);
               return (
                 <li key={item.href}>
