@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { MessageSquare, CheckCircle } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState("");
@@ -97,9 +98,13 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
       <Card className="w-full max-w-md border-slate-800 bg-slate-900">
         <CardHeader className="items-center text-center">
-          <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/10">
-            <MessageSquare className="h-6 w-6 text-violet-500" />
-          </div>
+          <Image
+            src="/LOGO-WOW-WITHOUT_BG.png"
+            alt="Wow WP"
+            width={140}
+            height={140}
+            className="mb-4 mx-auto"
+          />
           <CardTitle className="text-xl text-white">Create account</CardTitle>
           <CardDescription className="text-slate-400">
             Get started with CRM Template for WhatsApp

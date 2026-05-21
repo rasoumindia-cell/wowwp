@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { MessageSquare } from "lucide-react";
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -49,9 +50,13 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
       <Card className="w-full max-w-md border-slate-800 bg-slate-900">
         <CardHeader className="items-center text-center">
-          <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/10">
-            <MessageSquare className="h-6 w-6 text-violet-500" />
-          </div>
+          <Image
+            src="/LOGO-WOW-WITHOUT_BG.png"
+            alt="Wow WP"
+            width={140}
+            height={140}
+            className="mb-4 mx-auto"
+          />
           <CardTitle className="text-xl text-white">Welcome back</CardTitle>
           <CardDescription className="text-slate-400">
             Sign in to your account

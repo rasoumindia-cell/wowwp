@@ -115,9 +115,9 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
             <Image
               src="/LOGO-WOW-WITHOUT_BG.png"
               alt="Logo"
-              width={150}
-              height={40}
-              className="h-8 w-auto object-contain"
+              width={180}
+              height={48}
+              className="h-10 w-auto object-contain"
               priority
             />
           </Link>
