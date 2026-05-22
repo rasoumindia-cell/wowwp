@@ -135,7 +135,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
         {/* Main navigation */}
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <ul className="flex flex-col gap-1">
-            {navItems.filter((item) => hasPageAccess(profile, item.page)).map((item) => {
+            {navItems.filter((item) => !profile || hasPageAccess(profile, item.page)).map((item) => {
               const isActive =
                 pathname === item.href ||
                 (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -175,7 +175,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
           <div className="my-4 border-t border-sidebar-border" />
 
           <ul className="flex flex-col gap-1">
-            {bottomNavItems.filter((item) => hasPageAccess(profile, item.page)).map((item) => {
+            {bottomNavItems.filter((item) => !profile || hasPageAccess(profile, item.page)).map((item) => {
               const isActive = pathname.startsWith(item.href);
               return (
                 <li key={item.href}>
