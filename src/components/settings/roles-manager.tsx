@@ -96,25 +96,21 @@ export function RolesManager() {
     setSavingUserId(null);
   }
 
-  async function toggleRole(userId: string) {
+  async function setRole(userId: string, role: string) {
     setTogglingRoleId(userId);
     const user = users.find((u) => u.id === userId);
     if (!user) return;
-    const nextRole = user.role === "admin" ? "user" : "admin";
     const { error } = await supabase
       .from("profiles")
-      .update({ role: nextRole })
+      .update({ role })
       .eq("id", userId);
     if (error) {
       toast.error("Failed to update role: " + error.message);
     } else {
       setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, role: nextRole } : u)),
+        prev.map((u) => (u.id === userId ? { ...u, role } : u)),
       );
-      toast.success(
-        (user.full_name ?? user.email) + " is now " + nextRole,
-      );
-      // If the current admin changed their own role, refresh profile
+      toast.success((user.full_name ?? user.email) + " is now " + role);
       if (userId === profile?.id) {
         await refreshProfile();
       }
@@ -233,42 +229,49 @@ export function RolesManager() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => toggleRole(user.id)}
+                      <select
+                        value={user.role ?? "user"}
                         disabled={togglingRoleId === user.id}
-                        className={`border-slate-700 text-xs ${
+                        onChange={(e) => setRole(user.id, e.target.value)}
+                        className={`rounded-md border px-2 py-1 text-xs ${
                           user.role === "admin"
-                            ? "bg-violet-500/10 text-violet-400 hover:bg-violet-500/20"
-                            : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                        }`}
+                            ? "border-violet-700 bg-violet-500/10 text-violet-400"
+                            : user.role === "staff"
+                              ? "border-amber-700 bg-amber-500/10 text-amber-400"
+                              : "border-slate-700 bg-slate-800 text-slate-400"
+                        } focus:outline-none`}
                       >
-                        {togglingRoleId === user.id ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : user.role === "admin" ? (
-                          "Admin"
-                        ) : (
-                          "User"
-                        )}
-                      </Button>
+                        <option value="user" className="bg-slate-900 text-slate-300">
+                          User
+                        </option>
+                        <option value="staff" className="bg-slate-900 text-amber-400">
+                          Staff
+                        </option>
+                        <option value="admin" className="bg-slate-900 text-violet-400">
+                          Admin
+                        </option>
+                      </select>
                     </td>
                     {ALL_PAGES.map((page) => {
-                      const checked = user.role === "admin" || perms.includes(page);
+                      const isStaff = user.role === "staff";
+                      const checked = !isStaff || perms.includes(page);
                       return (
                         <td key={page} className="px-3 py-3 text-center">
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            disabled={user.role === "admin"}
-                            onChange={() => togglePage(user.id, page)}
-                            className="h-4 w-4 accent-violet-500"
-                          />
+                          {isStaff ? (
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => togglePage(user.id, page)}
+                              className="h-4 w-4 accent-violet-500"
+                            />
+                          ) : (
+                            <span className="text-slate-600">✓</span>
+                          )}
                         </td>
                       );
                     })}
                     <td className="px-4 py-3">
-                      {user.role !== "admin" && (
+                      {user.role === "staff" && (
                         <div className="flex items-center gap-1">
                           <Button
                             variant="ghost"

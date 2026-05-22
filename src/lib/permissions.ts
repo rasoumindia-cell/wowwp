@@ -35,14 +35,17 @@ export function isAdmin(profile: ProfileWithPermissions | null): boolean {
   return profile?.role === "admin";
 }
 
-/** If page_permissions is missing (column doesn't exist / migration not run),
- *  treat it as "all pages" so existing users aren't locked out. Once the column
- *  has an explicit array, only those pages are allowed (unless admin). */
+export function isStaff(profile: ProfileWithPermissions | null): boolean {
+  return profile?.role === "staff";
+}
+
+/** Admin & regular users see all pages. Only staff are restricted to their
+ *  page_permissions array. */
 function permsOrAll(
   profile: ProfileWithPermissions | null,
 ): PageSlug[] {
   if (!profile) return [];
-  if (profile.role === "admin") return [...ALL_PAGES];
+  if (profile.role !== "staff") return [...ALL_PAGES];
   const p = profile.page_permissions;
   if (!Array.isArray(p) || p.length === 0) return [...ALL_PAGES];
   return ALL_PAGES.filter((slug) => p.includes(slug));

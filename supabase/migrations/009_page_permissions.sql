@@ -1,11 +1,8 @@
 -- Add page-level permissions to profiles.
--- Usage:
---   role = 'admin' → full access to all pages
---   role = 'user'  → only pages listed in page_permissions
---
--- After applying this migration, run:
---   UPDATE profiles SET page_permissions = ARRAY['dashboard','inbox','contacts','pipelines','broadcasts','automations','settings'] WHERE role = 'admin';
---   (page_permissions is ignored for admins at the app level, but it's clean to fill it)
+-- Three roles:
+--   role = 'admin' → full access to all pages + can manage roles
+--   role = 'user'  → full access to all pages (default, unrestricted)
+--   role = 'staff' → only pages listed in page_permissions
 
 ALTER TABLE profiles
 ADD COLUMN IF NOT EXISTS page_permissions TEXT[] DEFAULT '{}';
