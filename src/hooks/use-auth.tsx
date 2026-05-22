@@ -135,6 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const supabase = createClient();
     let mounted = true;
+    let fetchCount = 0;
 
     const safetyTimer = setTimeout(() => {
       if (mounted) {
@@ -142,6 +143,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     }, 3000);
+
+    const doFetchProfile = async (userId: string) => {
+      fetchCount++;
+      await fetchProfile(userId);
+      if (mounted && fetchCount > 1) {
+        // Listener also fired — skip the duplicate loading = false
+        return;
+      }
+      setLoading(false);
+      clearTimeout(safetyTimer);
+    };
 
     const init = async () => {
       try {
@@ -157,19 +169,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(currentUser);
 
         if (currentUser) {
-          // Don't block loading on profile fetch — let the UI render
-          // with the user info we already have, profile enriches async.
-          fetchProfile(currentUser.id);
+          await doFetchProfile(currentUser.id);
+        } else {
+          if (mounted) setLoading(false);
+          clearTimeout(safetyTimer);
         }
       } catch (err) {
         console.error("[AuthProvider] init threw:", err);
-      } finally {
         if (mounted) setLoading(false);
         clearTimeout(safetyTimer);
       }
     };
-
-    init();
 
     const {
       data: { subscription },
@@ -179,13 +189,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(currentUser);
 
       if (currentUser) {
-        fetchProfile(currentUser.id);
+        doFetchProfile(currentUser.id);
       } else {
         setProfile(null);
+        if (mounted) setLoading(false);
       }
-
-      setLoading(false);
     });
+
+    init();
 
     return () => {
       mounted = false;
