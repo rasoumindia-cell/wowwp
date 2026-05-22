@@ -17,7 +17,7 @@ interface Profile {
   email: string;
   avatar_url: string | null;
   role: string | null;
-  page_permissions: string[];
+  page_permissions?: string[] | null;
 }
 
 interface AuthContextValue {

@@ -66,11 +66,15 @@ export async function middleware(request: NextRequest) {
       .maybeSingle()
 
     if (profile) {
+      const perms = profile.page_permissions;
+      // Column missing / empty → grant all (backwards compat)
+      const hasColumn = Array.isArray(perms);
       for (const [pathPrefix, pageSlug] of Object.entries(PAGE_PERMISSIONS)) {
         if (request.nextUrl.pathname.startsWith(pathPrefix)) {
           const hasAccess =
             profile.role === 'admin' ||
-            (profile.page_permissions ?? []).includes(pageSlug)
+            !hasColumn ||
+            perms!.includes(pageSlug)
 
           if (!hasAccess) {
             const url = request.nextUrl.clone()

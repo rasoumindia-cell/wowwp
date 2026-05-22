@@ -16,7 +16,8 @@ CREATE POLICY "Admins can manage all profiles"
   ON profiles
   FOR ALL
   USING (
-    auth.uid() IN (
-      SELECT p.user_id FROM profiles p WHERE p.role = 'admin'
-    )
+    auth.uid() IN (SELECT p.user_id FROM profiles p WHERE p.role = 'admin')
+  )
+  WITH CHECK (
+    auth.uid() IN (SELECT p.user_id FROM profiles p WHERE p.role = 'admin')
   );
