@@ -1,5 +1,4 @@
--- Make the first ever registered user an admin automatically.
--- Subsequent signups get role = 'user' as normal.
+-- Revert handle_new_user to not set role (roles system removed)
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
@@ -7,17 +6,12 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
-DECLARE
-  user_count INTEGER;
 BEGIN
-  SELECT COUNT(*) INTO user_count FROM public.profiles;
-
-  INSERT INTO public.profiles (user_id, full_name, email, role)
+  INSERT INTO public.profiles (user_id, full_name, email)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
-    NEW.email,
-    CASE WHEN user_count = 0 THEN 'admin' ELSE 'user' END
+    NEW.email
   );
   RETURN NEW;
 EXCEPTION WHEN OTHERS THEN

@@ -16,8 +16,6 @@ interface Profile {
   full_name: string | null;
   email: string;
   avatar_url: string | null;
-  role: string | null;
-  page_permissions?: string[] | null;
 }
 
 interface AuthContextValue {
@@ -49,23 +47,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = useCallback(async (userId: string) => {
     const supabase = createClient();
     try {
-      // Try with page_permissions first (column may not exist yet)
       let { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, email, avatar_url, role, page_permissions")
+        .select("id, full_name, email, avatar_url")
         .eq("user_id", userId)
         .maybeSingle();
-
-      // If column doesn't exist or server 500, retry without page_permissions
-      if (error) {
-        const retry = await supabase
-          .from("profiles")
-          .select("id, full_name, email, avatar_url, role")
-          .eq("user_id", userId)
-          .maybeSingle();
-        data = retry.data as typeof data;
-        error = retry.error;
-      }
 
       if (error) {
         console.error("[AuthProvider] fetchProfile error:", {
@@ -86,40 +72,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const defaultName = user.user_metadata?.full_name || user.email?.split("@")[0] || "User";
           const defaultEmail = user.email || "";
 
-          // First-ever user gets admin role
-          const { count } = await supabase
-            .from("profiles")
-            .select("*", { count: "exact", head: true });
-          const role = count === 0 ? "admin" : "user";
-          
-          // Try insert with page_permissions; fall back without it
-          let { data: newProfile, error: insertError } = await supabase
+          const { data: newProfile, error: insertError } = await supabase
             .from("profiles")
             .insert({
               user_id: user.id,
               full_name: defaultName,
               email: defaultEmail,
-              role,
-              page_permissions: []
             })
-            .select("id, full_name, email, avatar_url, role, page_permissions")
+            .select("id, full_name, email, avatar_url")
             .maybeSingle();
 
-          if (insertError) {
-            const retry = await supabase
-              .from("profiles")
-              .insert({
-                user_id: user.id,
-                full_name: defaultName,
-                email: defaultEmail,
-                role,
-              })
-              .select("id, full_name, email, avatar_url, role")
-              .maybeSingle();
-            newProfile = retry.data as typeof newProfile;
-            insertError = retry.error;
-          }
-            
           if (!insertError && newProfile) {
             setProfile(newProfile);
           } else {

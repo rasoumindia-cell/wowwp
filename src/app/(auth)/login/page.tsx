@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ShieldCheck } from "lucide-react";
+
 
 
 export default function LoginPage() {
@@ -118,24 +118,15 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6 flex flex-col items-center gap-3 text-sm text-slate-400">
-            <p>
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/signup"
-                className="text-violet-500 hover:text-violet-400"
-              >
-                Create account
-              </Link>
-            </p>
+          <p className="mt-6 text-center text-sm text-slate-400">
+            Don&apos;t have an account?{" "}
             <Link
-              href="/staff-login"
-              className="flex items-center gap-1.5 text-amber-400 hover:text-amber-300"
+              href="/signup"
+              className="text-violet-500 hover:text-violet-400"
             >
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Staff Login
+              Create account
             </Link>
-          </div>
+          </p>
         </CardContent>
       </Card>
     </div>

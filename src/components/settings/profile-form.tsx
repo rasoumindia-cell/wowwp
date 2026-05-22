@@ -314,12 +314,7 @@ export function ProfileForm() {
               Account details
             </p>
             <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-              <div>
-                <dt className="text-slate-500">Role</dt>
-                <dd className="mt-0.5 font-mono text-slate-200">
-                  {profile?.role ?? 'user'}
-                </dd>
-              </div>
+
               <div>
                 <dt className="text-slate-500">Joined</dt>
                 <dd className="mt-0.5 text-slate-200">{joined}</dd>

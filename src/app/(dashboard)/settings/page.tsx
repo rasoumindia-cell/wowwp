@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Settings, MessageSquare, Tag, User, Shield } from 'lucide-react';
+import { Settings, MessageSquare, Tag, User } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { WhatsAppConfig } from '@/components/settings/whatsapp-config';
 import { TemplateManager } from '@/components/settings/template-manager';
@@ -9,9 +9,9 @@ import { TagManager } from '@/components/settings/tag-manager';
 import { ProfileForm } from '@/components/settings/profile-form';
 import { PasswordForm } from '@/components/settings/password-form';
 import { SessionsCard } from '@/components/settings/sessions-card';
-import { RolesManager } from '@/components/settings/roles-manager';
 
-const TAB_VALUES = ['profile', 'whatsapp', 'templates', 'tags', 'roles'] as const;
+
+const TAB_VALUES = ['profile', 'whatsapp', 'templates', 'tags'] as const;
 type TabValue = (typeof TAB_VALUES)[number];
 
 function isTabValue(v: string | null): v is TabValue {
@@ -40,8 +40,7 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-2xl font-bold text-white">Settings</h1>
         <p className="text-sm text-slate-400 mt-1">
-          Manage your profile, WhatsApp® integration, message templates, and
-          tags.
+Manage your profile, WhatsApp® integration, message templates, and tags.
         </p>
       </div>
 
@@ -75,13 +74,7 @@ export default function SettingsPage() {
             <Tag className="size-4" />
             Tags
           </TabsTrigger>
-          <TabsTrigger
-            value="roles"
-            className="data-active:bg-slate-800 data-active:text-violet-400 text-slate-400"
-          >
-            <Shield className="size-4" />
-            Roles
-          </TabsTrigger>
+
         </TabsList>
 
         <TabsContent value="profile" className="space-y-6">
@@ -100,9 +93,6 @@ export default function SettingsPage() {
 
         <TabsContent value="tags">
           <TagManager />
-        </TabsContent>
-        <TabsContent value="roles">
-          <RolesManager />
         </TabsContent>
       </Tabs>
     </div>
