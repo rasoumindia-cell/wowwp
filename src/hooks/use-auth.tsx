@@ -56,8 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq("user_id", userId)
         .maybeSingle();
 
-      // Column doesn't exist — retry without it
-      if (error?.message?.includes("page_permissions")) {
+      // If column doesn't exist or server 500, retry without page_permissions
+      if (error) {
         const retry = await supabase
           .from("profiles")
           .select("id, full_name, email, avatar_url, role")
@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .select("id, full_name, email, avatar_url, role, page_permissions")
             .maybeSingle();
 
-          if (insertError?.message?.includes("page_permissions")) {
+          if (insertError) {
             const retry = await supabase
               .from("profiles")
               .insert({
