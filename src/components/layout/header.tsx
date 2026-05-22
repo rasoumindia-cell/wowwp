@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
-import { LogOut, Menu, Settings as SettingsIcon, User, Sun, Moon } from "lucide-react";
-import { useTheme } from "@/components/layout/theme-provider";
+import { LogOut, Menu, Settings as SettingsIcon, User } from "lucide-react";
 import {
   Avatar,
   AvatarFallback,
@@ -45,7 +44,6 @@ interface HeaderProps {
 export function Header({ onOpenSidebar }: HeaderProps) {
   const pathname = usePathname();
   const { profile, signOut } = useAuth();
-  const { theme, setTheme } = useTheme();
   const title = getPageTitle(pathname);
 
   const initial =
@@ -71,20 +69,6 @@ export function Header({ onOpenSidebar }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Premium Theme Switcher */}
-        <button
-          type="button"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-        >
-          {theme === "dark" ? (
-            <Sun className="h-[18px] w-[18px]" />
-          ) : (
-            <Moon className="h-[18px] w-[18px]" />
-          )}
-        </button>
-
         <DropdownMenu>
           <DropdownMenuTrigger
             className="flex items-center gap-2 rounded-md px-1 py-1 transition-colors hover:bg-accent/75 focus:bg-accent/75 focus:outline-none data-popup-open:bg-accent/75 sm:gap-3 sm:pl-1 sm:pr-3"
