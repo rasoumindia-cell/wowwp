@@ -49,11 +49,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = useCallback(async (userId: string) => {
     const supabase = createClient();
     try {
-      const { data, error } = await supabase
+      // Try with page_permissions first (column may not exist yet)
+      let { data, error } = await supabase
         .from("profiles")
         .select("id, full_name, email, avatar_url, role, page_permissions")
         .eq("user_id", userId)
         .maybeSingle();
+
+      // Column doesn't exist — retry without it
+      if (error?.message?.includes("page_permissions")) {
+        const retry = await supabase
+          .from("profiles")
+          .select("id, full_name, email, avatar_url, role")
+          .eq("user_id", userId)
+          .maybeSingle();
+        data = retry.data as typeof data;
+        error = retry.error;
+      }
 
       if (error) {
         console.error("[AuthProvider] fetchProfile error:", {
@@ -74,7 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const defaultName = user.user_metadata?.full_name || user.email?.split("@")[0] || "User";
           const defaultEmail = user.email || "";
           
-          const { data: newProfile, error: insertError } = await supabase
+          // Try insert with page_permissions; fall back without it
+          let { data: newProfile, error: insertError } = await supabase
             .from("profiles")
             .insert({
               user_id: user.id,
@@ -85,6 +98,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             })
             .select("id, full_name, email, avatar_url, role, page_permissions")
             .maybeSingle();
+
+          if (insertError?.message?.includes("page_permissions")) {
+            const retry = await supabase
+              .from("profiles")
+              .insert({
+                user_id: user.id,
+                full_name: defaultName,
+                email: defaultEmail,
+                role: "user",
+              })
+              .select("id, full_name, email, avatar_url, role")
+              .maybeSingle();
+            newProfile = retry.data as typeof newProfile;
+            insertError = retry.error;
+          }
             
           if (!insertError && newProfile) {
             setProfile(newProfile);
