@@ -17,8 +17,7 @@ import {
 } from "@/components/ui/card";
 import { ShieldCheck } from "lucide-react";
 
-
-export default function LoginPage() {
+export default function StaffLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -42,25 +41,22 @@ export default function LoginPage() {
       return;
     }
 
-    // Sync session cookies before middleware checks /dashboard
     router.refresh();
     router.push("/dashboard");
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-      <Card className="w-full max-w-md border-slate-800 bg-slate-900">
+    <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4">
+      <Card className="w-full max-w-md border-amber-800 bg-slate-950">
         <CardHeader className="items-center text-center">
-          <Image
-            src="/LOGO-WOW-WITHOUT_BG.png"
-            alt="Wow WP"
-            width={140}
-            height={140}
-            className="mb-4 mx-auto"
-          />
-          <CardTitle className="text-xl text-white">Welcome back</CardTitle>
+          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/10">
+            <ShieldCheck className="h-7 w-7 text-amber-400" />
+          </div>
+          <CardTitle className="text-xl text-amber-50">
+            Staff Portal
+          </CardTitle>
           <CardDescription className="text-slate-400">
-            Sign in to your account
+            Sign in with your staff credentials
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -78,26 +74,18 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="you@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="border-slate-700 bg-slate-800 text-white placeholder:text-slate-500 focus-visible:border-violet-500 focus-visible:ring-violet-500/20"
+                className="border-slate-700 bg-slate-800 text-white placeholder:text-slate-500 focus-visible:border-amber-500 focus-visible:ring-amber-500/20"
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-slate-300">
-                  Password
-                </Label>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-violet-500 hover:text-violet-400"
-                >
-                  Forgot password?
-                </Link>
-              </div>
+              <Label htmlFor="password" className="text-slate-300">
+                Password
+              </Label>
               <Input
                 id="password"
                 type="password"
@@ -105,37 +93,27 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="border-slate-700 bg-slate-800 text-white placeholder:text-slate-500 focus-visible:border-violet-500 focus-visible:ring-violet-500/20"
+                className="border-slate-700 bg-slate-800 text-white placeholder:text-slate-500 focus-visible:border-amber-500 focus-visible:ring-amber-500/20"
               />
             </div>
 
             <Button
               type="submit"
               disabled={loading}
-              className="mt-2 h-10 w-full bg-violet-600 text-white hover:bg-violet-500 disabled:opacity-50"
+              className="mt-2 h-10 w-full bg-amber-600 text-white hover:bg-amber-500 disabled:opacity-50"
             >
               {loading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
 
-          <div className="mt-6 flex flex-col items-center gap-3 text-sm text-slate-400">
-            <p>
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/signup"
-                className="text-violet-500 hover:text-violet-400"
-              >
-                Create account
-              </Link>
-            </p>
+          <p className="mt-6 text-center text-sm text-slate-400">
             <Link
-              href="/staff-login"
-              className="flex items-center gap-1.5 text-amber-400 hover:text-amber-300"
+              href="/login"
+              className="text-slate-500 hover:text-slate-300"
             >
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Staff Login
+              &larr; Back to user login
             </Link>
-          </div>
+          </p>
         </CardContent>
       </Card>
     </div>
