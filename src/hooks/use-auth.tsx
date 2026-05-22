@@ -85,6 +85,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (user) {
           const defaultName = user.user_metadata?.full_name || user.email?.split("@")[0] || "User";
           const defaultEmail = user.email || "";
+
+          // First-ever user gets admin role
+          const { count } = await supabase
+            .from("profiles")
+            .select("*", { count: "exact", head: true });
+          const role = count === 0 ? "admin" : "user";
           
           // Try insert with page_permissions; fall back without it
           let { data: newProfile, error: insertError } = await supabase
@@ -93,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               user_id: user.id,
               full_name: defaultName,
               email: defaultEmail,
-              role: "user",
+              role,
               page_permissions: []
             })
             .select("id, full_name, email, avatar_url, role, page_permissions")
@@ -106,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 user_id: user.id,
                 full_name: defaultName,
                 email: defaultEmail,
-                role: "user",
+                role,
               })
               .select("id, full_name, email, avatar_url, role")
               .maybeSingle();
